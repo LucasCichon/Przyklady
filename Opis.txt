@@ -1,0 +1,9 @@
+Projekt zawiera przyk³adowe:
+
+Dodanie rejestru kasowo bankowego procedura:		DodanieRejestru(); 
+Dodanie kontrahenta, procedura: 			DodajKontrahenta();
+Dodanie towaru, procedura: 				DodanieTowaru();
+Utworzenie faktury sprzeda¿y, procedura :		DodanieFaktury();
+Utworzenie korekty do faktury sprzeda¿y procedura:	DogenerujKorekteFA();
+Utworzenie dok. WZ do faktury sprzeda¿y, procedura:	Dogenerowanie_WZ_Do_FA();
+Uruchomienie wydruków programu.
