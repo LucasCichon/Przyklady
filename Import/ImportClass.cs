@@ -17,15 +17,19 @@ namespace Import
             string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\5041_02032020");
             //ilość zapisów do wykonania
             int iloscZapisow = 0;
-            //List<Zapis> zapisy = new List<Zapis>();
-            //obliczamy ilość zapisów
+            int iloscLinii = 0;
+            int dlugoscZapisu; 
+            
             foreach (string line in lines)
             {
                 if (line.Contains("4:")) 
                 {
                     iloscZapisow++; 
                 }
+                iloscLinii++;
             }
+            //Obliczenie długośći jednego zapisuKB
+            dlugoscZapisu = iloscLinii / iloscZapisow;
             //tworzymy tablice obiektów
             Zapis[] zapisy = new Zapis[iloscZapisow];
 
@@ -33,29 +37,23 @@ namespace Import
            
             //int ktoryZapis = 0; //    do obiektów
             int aktualnaLinia = 0;
-
-            int koniecPetli = 9;
+            int koniecPetli = dlugoscZapisu;
             int KtoryZapisOpis = 1;
             for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
             {
                 Zapis zapis = new Zapis();
                 Debug.WriteLine("*******" + KtoryZapisOpis + "******");
-                //tworzymy obiekt w tablicy zapisy
-                //zapisy[ktoryZapis] = new Zapis();
+                
                 for(int i = aktualnaLinia; i<koniecPetli; i++  ) //pętla poszczególnych linii
                 {
                     //Debug.WriteLine(lines[i]); // sprawdzanie
                     if (lines[i].Contains(":25:"))
                     {
-                        //int length = lines[s].Length;
-                        //string s = lines[s].Substring(lines[s].IndexOf('L')+1,)
                         Debug.WriteLine("***"+lines[i].Substring(7,26));
                         zapis.Konto = lines[i].Substring(7, 26);
                     }
                     if (lines[i].Contains(":28:"))
                     {
-                        //int length = lines[s].Length;
-                        //string s = lines[s].Substring(lines[s].IndexOf('L')+1,)
                         Debug.WriteLine("***"+lines[i].Substring(9));
                         zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
                     }
@@ -73,12 +71,11 @@ namespace Import
                             zapis.Wartosc = decimal.Parse(lines[i].Substring(15));
                             zapis.Symbol = -1;
                         }
-
                     }
                     zapisy[j] = zapis;
                 }
-                aktualnaLinia = aktualnaLinia + 9;
-                koniecPetli = aktualnaLinia+9;
+                aktualnaLinia = aktualnaLinia + dlugoscZapisu;
+                koniecPetli = aktualnaLinia + dlugoscZapisu;
                 KtoryZapisOpis++;
             }
 
@@ -94,7 +91,7 @@ namespace Import
                 try { Debug.WriteLine(zapis.Symbol); }
                 catch (Exception e) { Debug.WriteLine(e.Message); }
 
-                //ZAPISYWANIE !!!
+                //Zapis do Optimy!!!
                 ZapisKB(zapis);
             }
         }
@@ -104,8 +101,7 @@ namespace Import
             try
             {
                 CDNBase.AdoSession oSession = OptimaCOM.oLogin.CreateSession();
-                Debug.WriteLine("sesja udana");
-
+                
                 var rZapis = oSession.CreateObject("CDN.ZapisyKB").AddNew();
                 var rNumerator = rZapis.Numerator; //
 
@@ -140,7 +136,8 @@ namespace Import
                       
                     rZapis.DataDok = zapis.Data;
                     rZapis.Kwota = zapis.Wartosc;
-                    rZapis.NumerObcy = zapis.Konto;
+                    //rZapis.NumerObcy = zapis.Konto;
+                    rZapis.Opis = "Opis z C#";
    
                     Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
                    // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
@@ -168,6 +165,7 @@ namespace Import
                 } //Kontrahent
 
                 oSession.Save();
+                Debug.WriteLine("sesja udana");
             }
             catch(Exception e)
             {

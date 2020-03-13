@@ -16,7 +16,7 @@ namespace Import
             ImportClass.ImportZPliku();
 
             OptimaCOM.O_Logout();
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }
