@@ -10,6 +10,8 @@ namespace Import
     {
         public string Numer { get; set; }
         public string Nazwa { get; set; }
-        
+        public DateTime Data { get; set; }
+        public string PelnaNazwa { get; set; }
+        public string DataWpisana { get; set; }
     }
 }

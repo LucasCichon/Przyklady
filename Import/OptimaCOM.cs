@@ -36,7 +36,7 @@ namespace Import
         public static void O_Logout()
         {
             //Common.log.Info("OptimaCOM.O_Logout() - Wylogowanie z systemu ERP Optima.");
-            Console.WriteLine("Pruba wylogowania...");
+            Console.WriteLine("Próba wylogowania...");
             try
             {
                 oLogin = null;
