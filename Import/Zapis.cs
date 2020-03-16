@@ -12,5 +12,6 @@ namespace Import
         public DateTime Data { get; set; }
         public decimal Wartosc { get; set; }
         public int Symbol { get; set; }
+        public string Opis { get; set; }
     }
 }

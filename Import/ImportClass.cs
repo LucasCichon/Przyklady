@@ -11,10 +11,11 @@ namespace Import
 {
     class ImportClass
     {
-        public static void ImportZPliku()
+        public static void ImportZPliku(Rejestr rejestr, string plikPath)
         {
             //tablica lini z pliku
-            string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\5041_02032020");
+            //string[] lines = File.ReadAllLines(@"C:\Banki\"+rejestr.Numer+@"\2020\03.2020\"+rejestr.Numer+@"_"+plikPath);
+            string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
             //ilość zapisów do wykonania
             int iloscZapisow = 0;
             int iloscLinii = 0;
@@ -72,6 +73,11 @@ namespace Import
                             zapis.Symbol = -1;
                         }
                     }
+                    if (lines[i].Contains("^20"))
+                    {
+                        Debug.WriteLine("opis: "+lines[i].Substring(3));
+                        zapis.Opis = lines[i].Substring(3);
+                    }
                     zapisy[j] = zapis;
                 }
                 aktualnaLinia = aktualnaLinia + dlugoscZapisu;
@@ -89,6 +95,8 @@ namespace Import
                 try { Debug.WriteLine(zapis.Wartosc); }
                 catch (Exception e) { Debug.WriteLine(e.Message); }
                 try { Debug.WriteLine(zapis.Symbol); }
+                catch (Exception e) { Debug.WriteLine(e.Message); }
+                try { Debug.WriteLine(zapis.Opis); }
                 catch (Exception e) { Debug.WriteLine(e.Message); }
 
                 //Zapis do Optimy!!!
@@ -119,7 +127,7 @@ namespace Import
 
                 try
                 {
-                var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Akronim = '" + "KASA" + "'"); //Rejestr
+                var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Akronim = '" + /*rejestr.Nazwa*/ "KASA" + "'"); //Rejestr
                 rZapis.Rachunek = rRachunek;
                     Debug.WriteLine("pomyślne ustawienie rachunku");
                 }
@@ -130,6 +138,7 @@ namespace Import
                
                 try 
                 {
+                    //Tutaj musze podać nazwę rejestru (Rejestr/miesiac/rok/
                     var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/1/2020/KASA" + "'");
                     Debug.WriteLine("pomyślne dodanie Numeru");
                     rZapis.RaportKB = rRaport;
@@ -137,7 +146,7 @@ namespace Import
                     rZapis.DataDok = zapis.Data;
                     rZapis.Kwota = zapis.Wartosc;
                     //rZapis.NumerObcy = zapis.Konto;
-                    rZapis.Opis = "Opis z C#";
+                    rZapis.Opis = zapis.Opis;
    
                     Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
                    // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
@@ -171,6 +180,11 @@ namespace Import
             {
                 Debug.WriteLine("Błąd tworzenia sesji: "+e.Message);
             }
+        }
+
+        public static void PodanieDatyRejestru()
+        {
+
         }
     }
 }
