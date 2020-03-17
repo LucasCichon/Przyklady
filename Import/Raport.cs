@@ -13,5 +13,6 @@ namespace Import
         public DateTime DataZamkniecia { get; set; }
         public string DataOtwarciaString { get; set; }
         public string DataZamknieciaString { get; set; }
+        public int NumerNr { get; set; }
     }
 }

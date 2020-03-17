@@ -14,7 +14,7 @@ namespace Import
 {
     class ImportClass
     {
-        public static bool czyIstniejeRaport(DateTime data, string Numer)
+        public static bool czyIstniejeRaport(DateTime data, string Numer, Rejestr rejestr)
         {
             string provider = ConfigurationManager.AppSettings["provider"];
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
@@ -85,7 +85,7 @@ namespace Import
                 var rap = from Raport in raporty
                           where Raport.NazwaRejestru.Contains(Numer) && Raport.DataOtwarcia == data
                           select Raport;
-                if (rap != null)
+                if (rap.Any())
                 {
                     Debug.WriteLine("***Raport Istnieje***");
                     foreach (Raport r in rap)
@@ -98,6 +98,18 @@ namespace Import
                 else
                 {
                     Debug.WriteLine("NIE MA TAKIEGO RAPORTU... Zrób metode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    //Debug.WriteLine("Tworzenie nowego raportu");
+                    //try
+                    //{
+                        
+                    //    NowyRaport(rejestr);
+                       
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    Debug.WriteLine("Raport nie mógł zostać utworzony: " + e.Message);
+                    //}
+
                     //tak robimy metode zeby zwrócilo true !!
                     //Miejsce na metode utworzenia nowego raportu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     return false;
@@ -108,94 +120,170 @@ namespace Import
 
         public static void ImportZPliku(Rejestr rejestr)
         {
-            //tablica lini z pliku
-            string[] lines = File.ReadAllLines(@"C:\Banki\"+rejestr.Numer+@"\"+rejestr.Data.Year+@"\"+rejestr.DataWpisana+@"\"+rejestr.PelnaNazwa);
-            //string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
-            //ilość zapisów do wykonania
-            int iloscZapisow = 0;
-            int iloscLinii = 0;
-            int dlugoscZapisu; 
+            try
+            {
+
+                //tablica lini z pliku
+                string[] lines = File.ReadAllLines(@"C:\Banki\"+rejestr.Numer+@"\"+rejestr.Data.Year+@"\"+rejestr.DataWpisana+@"\"+rejestr.PelnaNazwa);
+                //string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
+                //ilość zapisów do wykonania
+                int iloscZapisow = 0;
+                int iloscLinii = 0;
+                int dlugoscZapisu; 
             
-            foreach (string line in lines)
-            {
-                if (line.Contains("4:")) 
+                foreach (string line in lines)
                 {
-                    iloscZapisow++; 
+                    if (line.Contains("4:")) 
+                    {
+                        iloscZapisow++; 
+                    }
+                    iloscLinii++;
                 }
-                iloscLinii++;
-            }
-            //Obliczenie długośći jednego zapisuKB
-            dlugoscZapisu = iloscLinii / iloscZapisow;
-            //tworzymy tablice obiektów
-            Zapis[] zapisy = new Zapis[iloscZapisow];
+                //Obliczenie długośći jednego zapisuKB
+                dlugoscZapisu = iloscLinii / iloscZapisow;
+                //tworzymy tablice obiektów
+                Zapis[] zapisy = new Zapis[iloscZapisow];
 
-            Debug.WriteLine("Ilość lini: " + iloscZapisow);
+                Debug.WriteLine("Ilość lini: " + iloscZapisow);
            
-            //int ktoryZapis = 0; //    do obiektów
-            int aktualnaLinia = 0;
-            int koniecPetli = dlugoscZapisu;
-            int KtoryZapisOpis = 1;
-            for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
-            {
-                Zapis zapis = new Zapis();
-                Debug.WriteLine("*******" + KtoryZapisOpis + "******");
-                
-                for(int i = aktualnaLinia; i<koniecPetli; i++  ) //pętla poszczególnych linii
+                //int ktoryZapis = 0; //    do obiektów
+                int aktualnaLinia = 0;
+                int koniecPetli = dlugoscZapisu;
+                int KtoryZapisOpis = 1;
+                for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
                 {
-                    //Debug.WriteLine(lines[i]); // sprawdzanie
-                    if (lines[i].Contains(":25:"))
+                    Zapis zapis = new Zapis();
+                    Debug.WriteLine("*******" + KtoryZapisOpis + "******");
+                
+                    for(int i = aktualnaLinia; i<koniecPetli; i++  ) //pętla poszczególnych linii
                     {
-                        Debug.WriteLine("***"+lines[i].Substring(7,26));
-                        zapis.Konto = lines[i].Substring(7, 26);
-                    }
-                    if (lines[i].Contains(":28:"))
-                    {
-                        Debug.WriteLine("***"+lines[i].Substring(9));
-                        zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
-                    }
-                    if (lines[i].Contains(":60F:"))
-                    {
-                        Debug.WriteLine("***" + lines[i].Substring(15));
-                        if (lines[i].Substring(15) == "0,00")
+                        //Debug.WriteLine(lines[i]); // sprawdzanie
+                        if (lines[i].Contains(":25:"))
                         {
-                            Debug.WriteLine("***" + lines[i + 1].Substring(15));
-                            zapis.Wartosc = decimal.Parse(lines[i + 1].Substring(15));
-                            zapis.Symbol = 1;
+                            Debug.WriteLine("***"+lines[i].Substring(7,26));
+                            zapis.Konto = lines[i].Substring(7, 26);
                         }
-                        else
+                        if (lines[i].Contains(":28:"))
                         {
-                            zapis.Wartosc = decimal.Parse(lines[i].Substring(15));
-                            zapis.Symbol = -1;
+                            Debug.WriteLine("***"+lines[i].Substring(9));
+                            zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
                         }
+                        if (lines[i].Contains(":60F:"))
+                        {
+                            Debug.WriteLine("***" + lines[i].Substring(15));
+                            if (lines[i].Substring(15) == "0,00")
+                            {
+                                Debug.WriteLine("***" + lines[i + 1].Substring(15));
+                                zapis.Wartosc = decimal.Parse(lines[i + 1].Substring(15));
+                                zapis.Symbol = 1;
+                            }
+                            else
+                            {
+                                zapis.Wartosc = decimal.Parse(lines[i].Substring(15));
+                                zapis.Symbol = -1;
+                            }
+                        }
+                        if (lines[i].Contains("^20"))
+                        {
+                            Debug.WriteLine("opis: "+lines[i].Substring(3));
+                            zapis.Opis = lines[i].Substring(3);
+                        }
+                        zapisy[j] = zapis;
                     }
-                    if (lines[i].Contains("^20"))
-                    {
-                        Debug.WriteLine("opis: "+lines[i].Substring(3));
-                        zapis.Opis = lines[i].Substring(3);
-                    }
-                    zapisy[j] = zapis;
+                    aktualnaLinia = aktualnaLinia + dlugoscZapisu;
+                    koniecPetli = aktualnaLinia + dlugoscZapisu;
+                    KtoryZapisOpis++;
                 }
-                aktualnaLinia = aktualnaLinia + dlugoscZapisu;
-                koniecPetli = aktualnaLinia + dlugoscZapisu;
-                KtoryZapisOpis++;
+            
+
+                Debug.WriteLine("OBIEKTY");
+                foreach(Zapis zapis in zapisy)
+                {
+                    try { Debug.WriteLine(zapis.Konto); }
+                    catch(Exception e) { Debug.WriteLine(e.Message); }
+                    try { Debug.WriteLine(zapis.Data); }
+                    catch(Exception e) { Debug.WriteLine(e.Message); }
+                    try { Debug.WriteLine(zapis.Wartosc); }
+                    catch (Exception e) { Debug.WriteLine(e.Message); }
+                    try { Debug.WriteLine(zapis.Symbol); }
+                    catch (Exception e) { Debug.WriteLine(e.Message); }
+                    try { Debug.WriteLine(zapis.Opis); }
+                    catch (Exception e) { Debug.WriteLine(e.Message); }
+
+                    //Zapis do Optimy!!!
+                    ZapisKB(zapis, rejestr);
+                }
             }
-
-            Debug.WriteLine("OBIEKTY");
-            foreach(Zapis zapis in zapisy)
+            catch(Exception e)
             {
-                try { Debug.WriteLine(zapis.Konto); }
-                catch(Exception e) { Debug.WriteLine(e.Message); }
-                try { Debug.WriteLine(zapis.Data); }
-                catch(Exception e) { Debug.WriteLine(e.Message); }
-                try { Debug.WriteLine(zapis.Wartosc); }
-                catch (Exception e) { Debug.WriteLine(e.Message); }
-                try { Debug.WriteLine(zapis.Symbol); }
-                catch (Exception e) { Debug.WriteLine(e.Message); }
-                try { Debug.WriteLine(zapis.Opis); }
-                catch (Exception e) { Debug.WriteLine(e.Message); }
+                Debug.WriteLine("Plik nie został znalezniony" + e.Message);
+            }
+        }
 
-                //Zapis do Optimy!!!
-                ZapisKB(zapis, rejestr);
+        public static int ZwrocID(Rejestr rejestr)
+        {
+            int ID=1;
+
+            string provider = ConfigurationManager.AppSettings["provider"];
+            string connectionString = ConfigurationManager.AppSettings["connectionString"];
+            DbProviderFactory factory = DbProviderFactories.GetFactory(provider); //to pozwala na słanie zapytań do bazy danych
+            using (DbConnection connection = factory.CreateConnection())
+            {
+                if (connection == null)
+                {
+                    Debug.WriteLine("Connection Error");
+                    Console.ReadLine();
+                    return 0;
+                }
+                connection.ConnectionString = connectionString;
+                connection.Open();
+                DbCommand command = factory.CreateCommand();
+                if (command == null)
+                {
+                    Debug.WriteLine("Command Error");
+                    Console.ReadLine();
+                    return 0;
+                }
+                command.Connection = connection;
+                command.CommandText = "Select TOP(1) [BRp_BRaID],[BRp_NumerNr],[BRp_NumerString],[BRp_DataDok],[BRp_DataZam],[BRp_Zamkniety],[BRp_NumerPelny] From [CDN_Firma_Demo].[CDN].[BnkRaporty] where [BRp_NumerString] LIKE '%" + rejestr.Numer + "%' "; // +" Where BRp_DataDok = "+ data;
+
+                using (DbDataReader dataReader = command.ExecuteReader())
+                {
+                    DateTime dataS;
+                    while (dataReader.Read())
+                    {
+                        Object SqlId = dataReader["BRp_BRaID"];
+                        int ParseID = (int)SqlId;
+                        ID = ParseID;
+
+                    }
+                }
+                return ID;
+            }
+        }
+
+        public static void NowyRaport(Rejestr rejestr)
+        {
+            var RachunekID = ZwrocID(rejestr);
+            try
+            {
+            CDNBase.AdoSession oSession = OptimaCOM.oLogin.CreateSession();
+            var rRaport = oSession.CreateObject("CDN.RaportyKB").AddNew();
+
+                //OP_KASBOLib.RaportKB raport = (OP_KASBOLib.RaportKB)oSession.CreateObject("CDNHeal.Raport", null).Item("RejestrRej = "+rejestr.Nazwa).AddNew();
+            var rRejestr = oSession.CreateObject("CDN.Rachunki").Item("BRa_BRaID=" + RachunekID);
+                rRaport.Rachunek = rRejestr;
+            rRaport.DataOtw = rejestr.Data;
+            rRaport.DataZam = rejestr.Data;
+
+            //czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr);
+
+            oSession.Save();
+                Debug.WriteLine("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
+            }
+            catch(Exception e)
+            {
+                Debug.WriteLine("Błąd tworzenia sesji podczas dodawania RAPORTU: " + e.Message); //Błąd tworzenia sesji podczas dodawania RAPORTUWcześniejszy raport nie ma ustalonej daty zamknięcia.
             }
         }
 
@@ -334,7 +422,7 @@ namespace Import
                     PelnaNazwa = rejestrIPlik[i],
                     Nazwa = rejestry[i],
                     Numer = rejestry[i],
-                    Data = DateTime.Parse(data),
+                    Data = DateTime.Parse(data), // dodawanie daty do obiektu Rejestr. Data jest dodawana na podstawie nazwy pliku
                     DataWpisana = data.Substring(3, 7)
                 });
             }

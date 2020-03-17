@@ -21,11 +21,26 @@ namespace Import
             List<Rejestr> ListaRejestrow = ImportClass.SzukaniePlikow();
 
 
-            foreach (Rejestr r in ListaRejestrow)
+            //foreach (Rejestr r in ListaRejestrow)
+            //{
+            //    if( ImportClass.czyIstniejeRaport(r.Data, r.Numer,) == true)
+            //    {
+            //    ImportClass.ImportZPliku(r);
+            //    }
+            //}
+            for(int i=0; i<ListaRejestrow.Count; i++)
             {
-                if( ImportClass.czyIstniejeRaport(r.Data, r.Numer) == true)
+                if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
                 {
-                ImportClass.ImportZPliku(r);
+                    ImportClass.ImportZPliku(ListaRejestrow[i]);
+                }
+                else
+                {
+                    ImportClass.NowyRaport(ListaRejestrow[i]);
+                    if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
+                    {
+                        ImportClass.ImportZPliku(ListaRejestrow[i]);
+                    }
                 }
             }
 
