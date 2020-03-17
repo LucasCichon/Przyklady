@@ -11,24 +11,14 @@ namespace odczyt_z_pliku
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\5041_02032020");
-            int i = 0;
-            foreach(string line in lines)
+            string path = @"‪C:\Banki\1572\2020\03.2020\1572_02032020";
+            if (File.Exists(path))
             {
-                if (line.Contains("4:")) { i++; }
+                Console.WriteLine("Istnieje");
             }
-
-            //tworzymy tablice obiektów
-            Zapis[] zapisy = new Zapis[i];
-
-            Console.WriteLine("Ilość lini: "+i);
-            int s = 0;
-            for(int j=i; j>0; j--)
+            else
             {
-                if (lines[s].Contains("PL"))
-                {
-
-                }
+                Console.WriteLine("Nie Istnieje");
             }
 
             Console.ReadLine();

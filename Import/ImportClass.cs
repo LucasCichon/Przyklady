@@ -67,19 +67,12 @@ namespace Import
                 
                 } // zapełnienie listy wszystkich raportów z daty
 
-                foreach(Raport r in raporty) 
-                {
-                    Debug.WriteLine(r.NazwaRejestru);
-                    Debug.WriteLine(r.DataOtwarcia);
-                    //Debug.WriteLine(r.DataOtwarciaString.Substring(0,10));
-                    //Debug.WriteLine(r.DataZamknieciaString.Substring(0,10)); // nie mam pojecia czemu to nie dziala
-                    //DateTime dataS = DateTime.Parse(r.DataOtwarciaString.Substring(0, 10));
-                    //Debug.WriteLine(dataS);
-                    //r.DataOtwarcia = DateTime.Parse(r.DataOtwarciaString);
-                    //Debug.WriteLine(r.DataOtwarcia);
-                    //r.DataZamkniecia = DateTime.Parse(r.DataZamknieciaString);
-                    //Debug.WriteLine(r.DataZamkniecia);
-                } //Wypisanie wszystkich raportów
+                //foreach(Raport r in raporty) 
+                //{
+                //    Debug.WriteLine(r.NazwaRejestru);
+                //    Debug.WriteLine(r.DataOtwarcia);
+                  
+                //} //Wypisanie wszystkich raportów
 
                 //Filtrowanie listy raportówpo numerze rejestru
                 var rap = from Raport in raporty
@@ -87,17 +80,17 @@ namespace Import
                           select Raport;
                 if (rap.Any())
                 {
-                    Debug.WriteLine("***Raport Istnieje***");
-                    foreach (Raport r in rap)
-                    {
-                        Debug.WriteLine(r.NazwaRejestru);
-                        Debug.WriteLine(r.DataOtwarcia);
-                    }
+                    //Debug.WriteLine("***Raport Istnieje***");
+                    //foreach (Raport r in rap)
+                    //{
+                    //    Debug.WriteLine(r.NazwaRejestru);
+                    //    Debug.WriteLine(r.DataOtwarcia);
+                    //}
                     return true;
-                } //wypisanie przefiltrowanych raportów
+                } //return true    ...wypisanie przefiltrowanych raportów
                 else
                 {
-                    Debug.WriteLine("NIE MA TAKIEGO RAPORTU... Zrób metode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    Debug.WriteLine("Brak Raportu...");
                     //Debug.WriteLine("Tworzenie nowego raportu");
                     //try
                     //{
@@ -118,8 +111,9 @@ namespace Import
             }
         }
 
-        public static void ImportZPliku(Rejestr rejestr)
+        public static void ImportZPliku( Rejestr rejestr)
         {
+            
             try
             {
 
@@ -144,7 +138,7 @@ namespace Import
                 //tworzymy tablice obiektów
                 Zapis[] zapisy = new Zapis[iloscZapisow];
 
-                Debug.WriteLine("Ilość lini: " + iloscZapisow);
+                //Debug.WriteLine("Ilość lini: " + iloscZapisow);
            
                 //int ktoryZapis = 0; //    do obiektów
                 int aktualnaLinia = 0;
@@ -153,27 +147,27 @@ namespace Import
                 for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
                 {
                     Zapis zapis = new Zapis();
-                    Debug.WriteLine("*******" + KtoryZapisOpis + "******");
+                    //Debug.WriteLine("*******" + KtoryZapisOpis + "******");
                 
                     for(int i = aktualnaLinia; i<koniecPetli; i++  ) //pętla poszczególnych linii
                     {
                         //Debug.WriteLine(lines[i]); // sprawdzanie
                         if (lines[i].Contains(":25:"))
                         {
-                            Debug.WriteLine("***"+lines[i].Substring(7,26));
+                            //Debug.WriteLine("***"+lines[i].Substring(7,26));
                             zapis.Konto = lines[i].Substring(7, 26);
                         }
                         if (lines[i].Contains(":28:"))
                         {
-                            Debug.WriteLine("***"+lines[i].Substring(9));
+                            //Debug.WriteLine("***"+lines[i].Substring(9));
                             zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
                         }
                         if (lines[i].Contains(":60F:"))
                         {
-                            Debug.WriteLine("***" + lines[i].Substring(15));
+                            //Debug.WriteLine("***" + lines[i].Substring(15));
                             if (lines[i].Substring(15) == "0,00")
                             {
-                                Debug.WriteLine("***" + lines[i + 1].Substring(15));
+                                //Debug.WriteLine("***" + lines[i + 1].Substring(15));
                                 zapis.Wartosc = decimal.Parse(lines[i + 1].Substring(15));
                                 zapis.Symbol = 1;
                             }
@@ -185,7 +179,7 @@ namespace Import
                         }
                         if (lines[i].Contains("^20"))
                         {
-                            Debug.WriteLine("opis: "+lines[i].Substring(3));
+                            //Debug.WriteLine("opis: "+lines[i].Substring(3));
                             zapis.Opis = lines[i].Substring(3);
                         }
                         zapisy[j] = zapis;
@@ -199,15 +193,20 @@ namespace Import
                 Debug.WriteLine("OBIEKTY");
                 foreach(Zapis zapis in zapisy)
                 {
-                    try { Debug.WriteLine(zapis.Konto); }
+                    try { //Debug.WriteLine(zapis.Konto); 
+                    }
                     catch(Exception e) { Debug.WriteLine(e.Message); }
-                    try { Debug.WriteLine(zapis.Data); }
+                    try { //Debug.WriteLine(zapis.Data); 
+                    }
                     catch(Exception e) { Debug.WriteLine(e.Message); }
-                    try { Debug.WriteLine(zapis.Wartosc); }
+                    try { //Debug.WriteLine(zapis.Wartosc); 
+                    }
                     catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try { Debug.WriteLine(zapis.Symbol); }
+                    try { //Debug.WriteLine(zapis.Symbol); 
+                    }
                     catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try { Debug.WriteLine(zapis.Opis); }
+                    try { //Debug.WriteLine(zapis.Opis); 
+                    }
                     catch (Exception e) { Debug.WriteLine(e.Message); }
 
                     //Zapis do Optimy!!!
@@ -223,6 +222,7 @@ namespace Import
         public static int ZwrocID(Rejestr rejestr)
         {
             int ID=1;
+            //int NumerNr=0;
 
             string provider = ConfigurationManager.AppSettings["provider"];
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
@@ -255,11 +255,57 @@ namespace Import
                         Object SqlId = dataReader["BRp_BRaID"];
                         int ParseID = (int)SqlId;
                         ID = ParseID;
-
+                        //Object SqlNumerNr = dataReader["BRp_NumerNr"];
                     }
                 }
                 return ID;
             }
+        }
+
+        public static int ZwrocNumerNr(Rejestr rejestr)
+        {
+            int NumerNr=0;
+            if (czyIstniejeRaport(rejestr.Data, rejestr.Nazwa, rejestr) == true)
+            {
+                string provider = ConfigurationManager.AppSettings["provider"];
+                string connectionString = ConfigurationManager.AppSettings["connectionString"];
+                DbProviderFactory factory = DbProviderFactories.GetFactory(provider); //to pozwala na słanie zapytań do bazy danych
+                using (DbConnection connection = factory.CreateConnection())
+                {
+                    if (connection == null)
+                    {
+                        Debug.WriteLine("Connection Error");
+                        Console.ReadLine();
+                        return 0;
+                    }
+                    connection.ConnectionString = connectionString;
+                    connection.Open();
+                    DbCommand command = factory.CreateCommand();
+                    if (command == null)
+                    {
+                        Debug.WriteLine("Command Error");
+                        Console.ReadLine();
+                        return 0;
+                    }
+                    command.Connection = connection;
+                    command.CommandText = "Select TOP(1) [BRp_NumerNr],[BRp_NumerString],[BRp_DataDok],[BRp_DataZam]From [CDN_Firma_Demo].[CDN].[BnkRaporty] where [BRp_NumerString] LIKE '%" + rejestr.Numer + "%' AND [BRp_DataDok] = '" + rejestr.Data.ToString("yyyy-MM-dd")+" 00:00:00.000'";//.ToString("yyyy-mm-dd") + ""; // +" Where BRp_DataDok = "+ data;
+
+                    
+
+                    using (DbDataReader dataReader = command.ExecuteReader())
+                    {
+                        DateTime dataS;
+                        while (dataReader.Read())
+                        {
+                            Object SqlNumerNr = dataReader["BRp_NumerNr"];
+                            int ParseNumerNr = (int)SqlNumerNr;
+                            NumerNr = ParseNumerNr;
+
+                        }
+                    }
+                }
+            }
+            return NumerNr;
         }
 
         public static void NowyRaport(Rejestr rejestr)
@@ -271,7 +317,7 @@ namespace Import
             var rRaport = oSession.CreateObject("CDN.RaportyKB").AddNew();
 
                 //OP_KASBOLib.RaportKB raport = (OP_KASBOLib.RaportKB)oSession.CreateObject("CDNHeal.Raport", null).Item("RejestrRej = "+rejestr.Nazwa).AddNew();
-            var rRejestr = oSession.CreateObject("CDN.Rachunki").Item("BRa_BRaID=" + RachunekID);
+            var rRejestr = oSession.CreateObject("CDN.Rachunki").Item("BRa_BRaID=" + RachunekID); // zeby metoda działała, w bazie danych musi być przynajmniej jeden raport !!!
                 rRaport.Rachunek = rRejestr;
             rRaport.DataOtw = rejestr.Data;
             rRaport.DataZam = rejestr.Data;
@@ -287,7 +333,7 @@ namespace Import
             }
         }
 
-        public static void ZapisKB(Zapis zapis, Rejestr rejestr)
+        public static void ZapisKB( Zapis zapis, Rejestr rejestr)
         {
             try
             {
@@ -323,8 +369,20 @@ namespace Import
                 {
                     //Numer raportu... jak to rozegrać...? 1/2020 to jest numer otwartego raportu w kolejnośći tworzenia.. to chyba powinna być zmienna
                     //DateTime data = rejestr.Data.AddDays(-1);
-                    var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/"+rejestr.Data.Day.ToString("d")+"/"+rejestr.Data.Year+"/"+rejestr.Nazwa + "'");
-                    Debug.WriteLine("pomyślne dodanie Numeru");
+
+                    if (czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr) == false)
+                        {
+                            NowyRaport(rejestr);
+                        Debug.WriteLine("NowyRaport() ZapisKB()......................................................................");
+                        };
+
+
+                        int NumerNr = ZwrocNumerNr(rejestr); //moge to wrzucic jako parametr do funkcji... int wywolasc gdzies przed wywolanie tej funkcji
+                        Debug.WriteLine("NumerNr() ZapisKB()......................................................NIEPOTRZEBNE ZAPYTANIA DO BAZY...");
+                    
+
+                    var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/"+NumerNr+"/"+rejestr.Data.Year+"/"+rejestr.Nazwa + "'");
+                    //Debug.WriteLine("pomyślne dodanie Numeru");
                     rZapis.RaportKB = rRaport;
                       
                     rZapis.DataDok = rejestr.Data; //z ta data byl problem !!!!!
@@ -332,7 +390,7 @@ namespace Import
                     //rZapis.NumerObcy = zapis.Konto;
                     rZapis.Opis = zapis.Opis;
    
-                    Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
+                   // Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
                    // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
                 }
                 catch(Exception e)
@@ -350,7 +408,7 @@ namespace Import
                 {
                     var rKontrahent = oSession.CreateObject("CDN.Kontrahenci").Item("Knt_KOD = '" +"!NIEOKREŚLONY!"+"'");
                     rZapis.Podmiot = rKontrahent;
-                    Debug.WriteLine("Kontrahent: POMYŚLNIE");
+                    //Debug.WriteLine("Kontrahent: POMYŚLNIE");
                 }
                 catch(Exception e)
                 {
@@ -358,7 +416,7 @@ namespace Import
                 } //Kontrahent
 
                 oSession.Save();
-                Debug.WriteLine("sesja udana");
+                //Debug.WriteLine("sesja udana");
             }
             catch(Exception e)
             {
@@ -366,28 +424,29 @@ namespace Import
             }
         } 
 
-        public static List<Rejestr> SzukaniePlikow()
+        public static List<Rejestr> SzukaniePlikow() //zwraca pelna liste rejestrów... lacznie z tymi w których nie ma pliku
         {
             string[] directories = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.AllDirectories);
 
             List<string> rejestry = new List<string>(); //Lista rejestrów 1234
             List<string> rejestrIPlik = new List<string>(); //Lista pelnych nazw plików 1234_02032020
             List<Rejestr> ListaRejestrow = new List<Rejestr>();
+            List<Rejestr> ListaRejestrowOdfiltrowana = new List<Rejestr>();
             string Path = ""; //nazwa pliku bez rejestru
 
-            foreach (string d in directories)
-            {
-                if (d.Contains("."))
-                {
-                    Debug.WriteLine(d);
-                }
-            } //wypisanie katalogów z datami miesiac/rok
+            //foreach (string d in directories)
+            //{
+            //    if (d.Contains("."))
+            //    {
+            //        Debug.WriteLine(d);
+            //    }
+            //} //wypisanie katalogów z datami miesiac/rok
 
             string data;    //Podajemy Datę
             Console.WriteLine("Podaj Datę:");
             data = Console.ReadLine();
 
-            foreach (string d in directories)
+            foreach (string d in directories)   //zapisuje rejestry które posiadają folder o podanej dacie MM.yyyy
             {
                 if (d.Contains(data.Substring(3)))
                 {
@@ -415,8 +474,9 @@ namespace Import
              } //wypisanie pełnych nazw */
 
 
-            for (int i = 0; i < rejestrIPlik.Count; i++)
+            for (int i = 0; i < rejestrIPlik.Count; i++) //zrobić filtrowanie rejetrów do tych które zawierają plik !!!
             {
+
                 ListaRejestrow.Add(new Rejestr
                 {
                     PelnaNazwa = rejestrIPlik[i],
@@ -426,15 +486,26 @@ namespace Import
                     DataWpisana = data.Substring(3, 7)
                 });
             }
-            foreach (Rejestr r in ListaRejestrow)
-            {
-                Debug.WriteLine("***Rejestr***");
-                Debug.WriteLine("Pelna nazwa: " + r.PelnaNazwa);
-                Debug.WriteLine("Nazwa: " + r.Nazwa);
-                Debug.WriteLine("Numer: " + r.Numer);
-                Debug.WriteLine("Data: " + r.Data.ToString());
-                Debug.WriteLine("Data wpisana: " + r.DataWpisana);
-            }
+
+            //foreach(Rejestr r in ListaRejestrow) // filtrowanie aktywnych rejestrów po tym czy plik istnieje
+            //{
+            //   // string path = @"‪C:\Banki\"+r.Nazwa+@"\"+r.Data.Year+ @"\"+r.Data.ToString("MM.yyyy")+@"\"+r.PelnaNazwa+@"";
+            //    string path = @"‪C:\Banki\1572\2020\03.2020\1572_07032020";
+            //    if (File.Exists(path))
+            //    {
+            //        ListaRejestrowOdfiltrowana.Add(r);
+            //    }
+            //}
+            //foreach (Rejestr r in ListaRejestrow) //Wypisanie Listy Rejestrów
+            //{
+            //    Debug.WriteLine("***Rejestr***");
+            //    Debug.WriteLine("Pelna nazwa: " + r.PelnaNazwa);
+            //    Debug.WriteLine("Nazwa: " + r.Nazwa);
+            //    Debug.WriteLine("Numer: " + r.Numer);
+            //    Debug.WriteLine("Data: " + r.Data.ToString());
+            //    Debug.WriteLine("Data wpisana: " + r.DataWpisana);
+            //}
+
 
             return ListaRejestrow;
         } // funkcja zwraca listę rejestrów

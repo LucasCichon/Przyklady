@@ -30,17 +30,19 @@ namespace Import
             //}
             for(int i=0; i<ListaRejestrow.Count; i++)
             {
+                //int NumerNr = ImportClass.ZwrocNumerNr(ListaRejestrow[i]);
+
                 if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
                 {
-                    ImportClass.ImportZPliku(ListaRejestrow[i]);
+                    ImportClass.ImportZPliku( ListaRejestrow[i]);
                 }
                 else
                 {
                     ImportClass.NowyRaport(ListaRejestrow[i]);
                     if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
-                    {
-                        ImportClass.ImportZPliku(ListaRejestrow[i]);
-                    }
+                {
+                    ImportClass.ImportZPliku(ListaRejestrow[i]);
+                }
                 }
             }
 
