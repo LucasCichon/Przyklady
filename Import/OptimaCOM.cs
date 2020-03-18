@@ -19,7 +19,7 @@ namespace Import
 
         public static void O_Login(string oOper, string oPass, string oBase = "WIKANYS")
         {
-            Program.log.Info("OptimaCOM.O_Login() - Logowanie w systemie ERP Optima.");
+            Form1.log.Info("OptimaCOM.O_Login() - Logowanie w systemie ERP Optima.");
             //_oOper = oOper;
             Debug.WriteLine("Próba logowania...");
             try
@@ -27,18 +27,18 @@ namespace Import
                 System.Environment.CurrentDirectory = @"C:\Program Files (x86)\Comarch ERP Optima";
                 oApp = new CDNBase.Application();
                 oLogin = oApp.Login(oOper, oPass, oBase);
-                Program.log.Info("zalogowano!!!");
+                Form1.log.Info("zalogowano!!!");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("błąd");
-                Program.log.Info("OptimaCOM.O_Login() - " + ex.Message);
+                Form1.log.Info("OptimaCOM.O_Login() - " + ex.Message);
             }
         }
 
         public static void O_Logout()
         {
-            Program.log.Info("OptimaCOM.O_Logout() - Wylogowanie z systemu ERP Optima.");
+            Form1.log.Info("OptimaCOM.O_Logout() - Wylogowanie z systemu ERP Optima.");
             Debug.WriteLine("Próba wylogowania...");
             try
             {
@@ -51,7 +51,7 @@ namespace Import
             catch (Exception ex)
             {
                 Debug.WriteLine("Błąd podczas wylogowywania: " +ex.Message);
-                Program.log.Info("OptimaCOM.O_Logout() - " + ex.Message);
+                Form1.log.Info("OptimaCOM.O_Logout() - " + ex.Message);
             }
         }
 

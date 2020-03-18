@@ -10,12 +10,15 @@ using CDNBase;
 using System.Data.Common;
 using System.Configuration;
 
+
+
 namespace Import
 {
-    class ImportClass
+     class ImportClass : Form1
     {
+        //Program.logUri("takie tam");
         
-        public static List<Rejestr> SzukaniePlikow() 
+        public static List<Rejestr> SzukaniePlikow(string Data) 
         {
             string[] directories = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.AllDirectories);
             string[] directoriesRejestr = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.TopDirectoryOnly);
@@ -33,8 +36,9 @@ namespace Import
             }
            
             string data;    //Podajemy Datę
-            Console.WriteLine("Podaj Datę:");
-            data = Console.ReadLine();
+            Console.WriteLine("Podaj Datę:"); // miejsce na zczytanie daty z okienka
+            data = Data;
+            //data = Console.ReadLine();
 
             #region stara metoda wyszukiwania rejestrów
             //try
@@ -228,18 +232,18 @@ namespace Import
                         ZapisKB(numerNr, zapis, rejestr);
 
                     } 
-                    Program.log.Debug("Poprawny zapis rejestrów do Raportu: RKB/" + NumerNr + "/" + rejestr.Data.Year.ToString() + "/" + rejestr.Numer);
+                    Form1.log.Debug("Poprawny zapis rejestrów do Raportu: RKB/" + NumerNr + "/" + rejestr.Data.Year.ToString() + "/" + rejestr.Numer);
                     Debug.WriteLine("Poprawny zapis rejestrów do Raportu: RKB/" + NumerNr + "/" + rejestr.Data.Year.ToString() + "/" + rejestr.Numer);
                 }
                 catch(Exception e)
                 {
-                    Program.log.Error("Niepoprawny zapis rejestrów do Raportu: RKB/"+NumerNr+"/"+rejestr.Data.Year.ToString()+"/"+rejestr.Numer+", "+e.Message  );
+                    Form1.log.Error("Niepoprawny zapis rejestrów do Raportu: RKB/"+NumerNr+"/"+rejestr.Data.Year.ToString()+"/"+rejestr.Numer+", "+e.Message  );
                     Debug.WriteLine("Niepoprawny zapis rejestrów do Raportu: RKB/"+NumerNr+"/"+rejestr.Data.Year.ToString()+"/"+rejestr.Numer+", "+e.Message  );
                 } // zapisywanie zapisówKB
             }
             catch(Exception e)
             {
-                Program.log.Error("Plik nie został znalezniony" + e.Message);
+                Form1.log.Error("Plik nie został znalezniony" + e.Message);
                 Debug.WriteLine("Plik nie został znalezniony" + e.Message);
             }
         } //Parsowanie danych z pliku. 
@@ -253,7 +257,7 @@ namespace Import
             {
                 if (connection == null)
                 {
-                    Program.log.Error("Connection Error");
+                    Form1.log.Error("Connection Error");
                     Debug.WriteLine("Connection Error");
                     Console.ReadLine();
                     return false;
@@ -263,7 +267,7 @@ namespace Import
                 DbCommand command = factory.CreateCommand();
                 if (command == null)
                 {
-                    Program.log.Error("Commant Error");
+                    Form1.log.Error("Commant Error");
                     Debug.WriteLine("Command Error");
                     Console.ReadLine();
                     return false;
@@ -316,7 +320,7 @@ namespace Import
                 else
                 {
                     Debug.WriteLine("Brak Raportu. Raport jest tworzony.");
-                    Program.log.Debug("Brak Raportu.");
+                    Form1.log.Debug("Brak Raportu.");
                     try
                     {
                         NowyRaport(rejestr); //jeżeli nie ma raportu, raport jest tworzony od razu i zwracana jest wartosć true
@@ -325,7 +329,7 @@ namespace Import
                     catch (Exception e)
                     {
                         Debug.WriteLine("Raport nie mógł zostać utworzony: " + e.Message);
-                        Program.log.Error("Raport nie mógł zostać utworzony: " + e.Message);
+                        Form1.log.Error("Raport nie mógł zostać utworzony: " + e.Message);
                     }
 
                     return false;
@@ -353,12 +357,12 @@ namespace Import
             //czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr);
 
             oSession.Save();
-                Program.log.Debug("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
+                Form1.log.Debug("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
                 Debug.WriteLine("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
             }
             catch(Exception e)
             {
-                Program.log.Error("Błąd tworzenia sesji podczas dodawania RAPORTU: "+ Environment.NewLine + e.Message); //Błąd tworzenia sesji podczas dodawania RAPORTUWcześniejszy raport nie ma ustalonej daty zamknięcia.
+                Form1.log.Error("Błąd tworzenia sesji podczas dodawania RAPORTU: "+ Environment.NewLine + e.Message); //Błąd tworzenia sesji podczas dodawania RAPORTUWcześniejszy raport nie ma ustalonej daty zamknięcia.
                 Debug.WriteLine("Błąd tworzenia sesji podczas dodawania RAPORTU: "+ Environment.NewLine + e.Message); 
             }
         } // Tworzenie nowego raportu
@@ -383,7 +387,7 @@ namespace Import
                 }
                 catch (Exception e)
                 {
-                    Program.log.Debug("Błąd podczas tworzenia definicji dokumentu: " + e.Message);
+                    Form1.log.Debug("Błąd podczas tworzenia definicji dokumentu: " + e.Message);
                 } //DefinicjeDokumentów
 
                 try
@@ -394,7 +398,7 @@ namespace Import
                 }
                 catch (Exception e)
                 {
-                    Program.log.Debug("Błąd podczas ustawiania rachunku: " + Environment.NewLine + e.Message);
+                    Form1.log.Debug("Błąd podczas ustawiania rachunku: " + Environment.NewLine + e.Message);
                 } // Ustawienie rachunku
 
                 try
@@ -459,7 +463,7 @@ namespace Import
                 {
                     if (connection == null)
                     {
-                        Program.log.Debug("Connection Error");
+                        Form1.log.Debug("Connection Error");
                         Console.ReadLine();
                         return 0;
                     }
@@ -468,7 +472,7 @@ namespace Import
                     DbCommand command = factory.CreateCommand();
                     if (command == null)
                     {
-                        Program.log.Debug("Connection Error");
+                        Form1.log.Debug("Connection Error");
                         Console.ReadLine();
                         return 0;
                     }
@@ -479,7 +483,6 @@ namespace Import
 
                     using (DbDataReader dataReader = command.ExecuteReader())
                     {
-                        DateTime dataS;
                         while (dataReader.Read())
                         {
                             Object SqlNumerNr = dataReader["BRp_NumerNr"];
@@ -528,7 +531,6 @@ namespace Import
 
                 using (DbDataReader dataReader = command.ExecuteReader())
                 {
-                    DateTime dataS;
                     while (dataReader.Read())
                     {
                         Object SqlId = dataReader["BRp_BRaID"];
