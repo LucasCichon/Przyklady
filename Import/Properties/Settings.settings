@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Import.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Katalog_z_wyciagami" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Banki\</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CDNBase;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Import
 {  
@@ -18,37 +19,39 @@ namespace Import
 
         public static void O_Login(string oOper, string oPass, string oBase = "WIKANYS")
         {
-            //Common.log.Info("OptimaCOM.O_Login() - Logowanie w systemie ERP Optima.");
+            Program.log.Info("OptimaCOM.O_Login() - Logowanie w systemie ERP Optima.");
             //_oOper = oOper;
+            Debug.WriteLine("Próba logowania...");
             try
             {
                 System.Environment.CurrentDirectory = @"C:\Program Files (x86)\Comarch ERP Optima";
                 oApp = new CDNBase.Application();
                 oLogin = oApp.Login(oOper, oPass, oBase);
+                Program.log.Info("zalogowano!!!");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("błąd");
-                //Common.log.Info("OptimaCOM.O_Login() - " + ex.Message);
+                Program.log.Info("OptimaCOM.O_Login() - " + ex.Message);
             }
         }
 
         public static void O_Logout()
         {
-            //Common.log.Info("OptimaCOM.O_Logout() - Wylogowanie z systemu ERP Optima.");
-            Console.WriteLine("Próba wylogowania...");
+            Program.log.Info("OptimaCOM.O_Logout() - Wylogowanie z systemu ERP Optima.");
+            Debug.WriteLine("Próba wylogowania...");
             try
             {
                 oLogin = null;
 
                 oApp.UnlockApp();
                 oApp = null;
-                Console.WriteLine("Wylogowano pomyślnie!!!");
+                Debug.WriteLine("Wylogowano pomyślnie!!!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Błąd podczas wylogowywania: " +ex.Message);
-                //Common.log.Info("OptimaCOM.O_Logout() - " + ex.Message);
+                Debug.WriteLine("Błąd podczas wylogowywania: " +ex.Message);
+                Program.log.Info("OptimaCOM.O_Logout() - " + ex.Message);
             }
         }
 

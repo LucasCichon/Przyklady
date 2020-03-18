@@ -18,31 +18,39 @@ namespace Import
         public static List<Rejestr> SzukaniePlikow() 
         {
             string[] directories = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.AllDirectories);
+            string[] directoriesRejestr = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.TopDirectoryOnly);
 
             List<string> rejestry = new List<string>(); //Lista rejestrów 1234
             List<string> rejestrIPlik = new List<string>(); //Lista pelnych nazw plików 1234_02032020
             List<Rejestr> ListaRejestrow = new List<Rejestr>();
-            List<Rejestr> ListaRejestrowOdfiltrowana = new List<Rejestr>();
-            string Path = ""; //nazwa pliku bez rejestru
-
+            //List<Rejestr> ListaRejestrowOdfiltrowana = new List<Rejestr>();
+            string Path = ""; //nazwa pliku bez rejestru, czyli data bez kropek
+            
+            foreach(string s in directoriesRejestr)
+            {
+                //Console.WriteLine(s);
+                rejestry.Add(s.Substring(9, 4));
+            }
+           
             string data;    //Podajemy Datę
             Console.WriteLine("Podaj Datę:");
             data = Console.ReadLine();
 
+            #region stara metoda wyszukiwania rejestrów
             //try
             //{
-            //    if(data.Length == 10)
+            //    if (data.Length == 10)
             //    {
-                    foreach (string d in directories)   //zapisuje rejestry które posiadają folder o podanej dacie MM.yyyy
-                    {
-                        if (d.Contains(data.Substring(3)))
-                        {
-                            Debug.WriteLine(d);
-                            rejestry.Add(d.Substring(9, 4));
-                        }
+            //        foreach (string d in directories)   //zapisuje rejestry które posiadają folder o podanej dacie MM.yyyy
+            //        {
+            //            if (d.Contains(data.Substring(3)))
+            //            {
+            //                Debug.WriteLine(d);
+            //                rejestry.Add(d.Substring(9, 4));
+            //            }
                         
-                    } // jeżeli w spisice katalogów zawiera się takalog o dacie miesiac/rok ( podanej w formie DD:MM:YYYY) do listy rejestrów dodany jest rejestr
-            
+            //        } // jeżeli w spisice katalogów zawiera się takalog o dacie "miesiac.rok" ( podanej w formie MM:YYYY) do listy rejestrów dodany jest rejestr
+
             //    }
             //    else
             //    {
@@ -51,15 +59,16 @@ namespace Import
             //    }
             //}
             //catch(Exception e) 
-            //{ 
-            //    Debug.WriteLine("Błąd na poziomie zapełniania listy rejestró które posiadają folder o podanej dacie MM.yyyy" + e.Message); 
-            //}
+            //    { 
+            //        Debug.WriteLine("Błąd na poziomie zapełniania listy rejestró które posiadają folder o podanej dacie MM.yyyy" + e.Message); 
+            //    }
 
             //if (!rejestry.Any())
-            //{
-            //    Console.WriteLine("Błędne Dane, bądź plik nie istnieje");
-            //    SzukaniePlikow();
-            //}
+            //    {
+            //        Console.WriteLine("Błędne Dane, bądź plik nie istnieje");
+            //        SzukaniePlikow();
+            //    }
+            #endregion  // stara metoda wyszukiwania rejestró //stara metoda wyszukiwania rejestrów stara metoda przerabiania 
 
             //mechanizm przerabiania daty na ścieżke pliku
             Char[] charsToRemove = { '.' };
@@ -108,15 +117,14 @@ namespace Import
             return ListaRejestrow;
         } // funkcja zwraca listę rejestrów ...  lacznie z tymi w których nie ma pliku ...UWAGA!!! rejestry są brane jeżeli folder (MM.yyyy) istnieje.
 
-        public static void ImportZPlikuNumerNr(int NumerNr, Rejestr rejestr)
+        public static void ImportZPliku(int NumerNr, Rejestr rejestr)
         {
             int numerNr = NumerNr;
             
             try
             {
-
                 //tablica lini z pliku
-                string[] lines = File.ReadAllLines(@"C:\Banki\"+rejestr.Numer+@"\"+rejestr.Data.Year+@"\"+rejestr.DataWpisana+@"\"+rejestr.PelnaNazwa);
+                string[] lines = File.ReadAllLines(Properties.Settings.Default.Katalog_z_wyciagami+rejestr.Numer+@"\"+rejestr.Data.Year+@"\"+rejestr.DataWpisana+@"\"+rejestr.PelnaNazwa);
                 //string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
                 //ilość zapisów do wykonania
                 int iloscZapisow = 0;
@@ -178,7 +186,11 @@ namespace Import
                         if (lines[i].Contains("^20"))
                         {
                             //Debug.WriteLine("opis: "+lines[i].Substring(3));
-                            zapis.Opis = lines[i].Substring(3);
+                          
+                            //zapis.Opis = lines[i].Substring(3);
+                            //string s1 = EncodingDoWindows1250(lines[i].Substring(3));
+                            //string s2 = ZamianaPolskiegoZnaku(s1);
+                            zapis.Opis = ZamianaPolskiegoZnaku(lines[i].Substring(3));
                         }
                         zapisy[j] = zapis;
                     }
@@ -186,34 +198,48 @@ namespace Import
                     koniecPetli = aktualnaLinia + dlugoscZapisu;
                     KtoryZapisOpis++;
                 }
-            
 
-                Debug.WriteLine("OBIEKTY");
-                foreach(Zapis zapis in zapisy)
+                try  
                 {
-                    try { //Debug.WriteLine(zapis.Konto); 
-                    }
-                    catch(Exception e) { Debug.WriteLine(e.Message); }
-                    try { //Debug.WriteLine(zapis.Data); 
-                    }
-                    catch(Exception e) { Debug.WriteLine(e.Message); }
-                    try { //Debug.WriteLine(zapis.Wartosc); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try { //Debug.WriteLine(zapis.Symbol); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try { //Debug.WriteLine(zapis.Opis); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
+                    foreach (Zapis zapis in zapisy)
+                    {
+                        try
+                        { //Debug.WriteLine(zapis.Konto); 
+                        }
+                        catch (Exception e) { Debug.WriteLine(e.Message); }
+                        try
+                        { //Debug.WriteLine(zapis.Data); 
+                        }
+                        catch (Exception e) { Debug.WriteLine(e.Message); }
+                        try
+                        { //Debug.WriteLine(zapis.Wartosc); 
+                        }
+                        catch (Exception e) { Debug.WriteLine(e.Message); }
+                        try
+                        { //Debug.WriteLine(zapis.Symbol); 
+                        }
+                        catch (Exception e) { Debug.WriteLine(e.Message); }
+                        try
+                        { //Debug.WriteLine(zapis.Opis); 
+                        }
+                        catch (Exception e) { Debug.WriteLine(e.Message); }
 
-                    //Zapis do Optimy!!!
-                    //ZapisKB(zapis, rejestr);
-                    ZapisKBNumerNr(numerNr, zapis, rejestr);
+                        //Zapis do Optimy!!!
+                        ZapisKB(numerNr, zapis, rejestr);
+
+                    } 
+                    Program.log.Debug("Poprawny zapis rejestrów do Raportu: RKB/" + NumerNr + "/" + rejestr.Data.Year.ToString() + "/" + rejestr.Numer);
+                    Debug.WriteLine("Poprawny zapis rejestrów do Raportu: RKB/" + NumerNr + "/" + rejestr.Data.Year.ToString() + "/" + rejestr.Numer);
                 }
+                catch(Exception e)
+                {
+                    Program.log.Error("Niepoprawny zapis rejestrów do Raportu: RKB/"+NumerNr+"/"+rejestr.Data.Year.ToString()+"/"+rejestr.Numer+", "+e.Message  );
+                    Debug.WriteLine("Niepoprawny zapis rejestrów do Raportu: RKB/"+NumerNr+"/"+rejestr.Data.Year.ToString()+"/"+rejestr.Numer+", "+e.Message  );
+                } // zapisywanie zapisówKB
             }
             catch(Exception e)
             {
+                Program.log.Error("Plik nie został znalezniony" + e.Message);
                 Debug.WriteLine("Plik nie został znalezniony" + e.Message);
             }
         } //Parsowanie danych z pliku. 
@@ -227,6 +253,7 @@ namespace Import
             {
                 if (connection == null)
                 {
+                    Program.log.Error("Connection Error");
                     Debug.WriteLine("Connection Error");
                     Console.ReadLine();
                     return false;
@@ -236,6 +263,7 @@ namespace Import
                 DbCommand command = factory.CreateCommand();
                 if (command == null)
                 {
+                    Program.log.Error("Commant Error");
                     Debug.WriteLine("Command Error");
                     Console.ReadLine();
                     return false;
@@ -271,14 +299,7 @@ namespace Import
                 
                 } // zapełnienie listy wszystkich raportów z daty
 
-                //foreach(Raport r in raporty) 
-                //{
-                //    Debug.WriteLine(r.NazwaRejestru);
-                //    Debug.WriteLine(r.DataOtwarcia);
-                  
-                //} //Wypisanie wszystkich raportów
-
-                //Filtrowanie listy raportówpo numerze rejestru
+                //Filtrowanie listy raportówpo numerze rejestru i Dacie otwarcia
                 var rap = from Raport in raporty
                           where Raport.NazwaRejestru.Contains(Numer) && Raport.DataOtwarcia == data
                           select Raport;
@@ -291,29 +312,30 @@ namespace Import
                     //    Debug.WriteLine(r.DataOtwarcia);
                     //}
                     return true;
-                } //return true    ...wypisanie przefiltrowanych raportów
+                } //return true    
                 else
                 {
-                    Debug.WriteLine("Brak Raportu...");
-                    //Debug.WriteLine("Tworzenie nowego raportu");
-                    //try
-                    //{
-                        
-                    //    NowyRaport(rejestr);
-                       
-                    //}
-                    //catch (Exception e)
-                    //{
-                    //    Debug.WriteLine("Raport nie mógł zostać utworzony: " + e.Message);
-                    //}
+                    Debug.WriteLine("Brak Raportu. Raport jest tworzony.");
+                    Program.log.Debug("Brak Raportu.");
+                    try
+                    {
+                        NowyRaport(rejestr); //jeżeli nie ma raportu, raport jest tworzony od razu i zwracana jest wartosć true
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Raport nie mógł zostać utworzony: " + e.Message);
+                        Program.log.Error("Raport nie mógł zostać utworzony: " + e.Message);
+                    }
 
+                    return false;
                     //tak robimy metode zeby zwrócilo true !!
                     //Miejsce na metode utworzenia nowego raportu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    return false;
-                }
+                } //tworzenie nowego raportu - return true / catch exeption return false
                 
             }
-        } //Funkcja sprawdza czy istnieje potrzebny raport(czyli z odpowiednią datą )
+        } 
+
         public static void NowyRaport(Rejestr rejestr)
         {
             var RachunekID = ZwrocID(rejestr);
@@ -331,15 +353,17 @@ namespace Import
             //czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr);
 
             oSession.Save();
+                Program.log.Debug("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
                 Debug.WriteLine("Dodawanie Raportu zakończone powodzeniem!"); //Wcześniejszy raport nie ma ustalonej daty zamknięcia.
             }
             catch(Exception e)
             {
-                Debug.WriteLine("Błąd tworzenia sesji podczas dodawania RAPORTU: " + e.Message); //Błąd tworzenia sesji podczas dodawania RAPORTUWcześniejszy raport nie ma ustalonej daty zamknięcia.
+                Program.log.Error("Błąd tworzenia sesji podczas dodawania RAPORTU: "+ Environment.NewLine + e.Message); //Błąd tworzenia sesji podczas dodawania RAPORTUWcześniejszy raport nie ma ustalonej daty zamknięcia.
+                Debug.WriteLine("Błąd tworzenia sesji podczas dodawania RAPORTU: "+ Environment.NewLine + e.Message); 
             }
         } // Tworzenie nowego raportu
 
-        public static void ZapisKBNumerNr(int numerNr,Zapis zapis, Rejestr rejestr)
+        public static void ZapisKB(int numerNr,Zapis zapis, Rejestr rejestr)
         {
             int NumerNr = numerNr;
             try
@@ -351,54 +375,49 @@ namespace Import
 
                 try
                 {
+                    //.Item("CDN_PRINTERCODEPAGE = 1250")
                     var rDokDef = oSession.CreateObject("CDN.DefinicjeDokumentow").Item("DDf_DDfID = 5");//.Item("DDf_Symbol=''"); //seria
                     rNumerator.DefinicjaDokumentu = rDokDef;
-
-                    Debug.WriteLine("Definicja dokumentu UDANA!");
+                    
+                    //Debug.WriteLine("Definicja dokumentu UDANA!");
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Błąd podczas tworzenia definicji dokumentu: " + e.Message);
+                    Program.log.Debug("Błąd podczas tworzenia definicji dokumentu: " + e.Message);
                 } //DefinicjeDokumentów
 
                 try
                 {
-                    var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Akronim = '" + rejestr.Nazwa + "'"); //Rejestr
+                    var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Symbol = '" + rejestr.Nazwa + "'"); //Rejestr//musi byc BRa_Symbol bo Akronimy mogą mieć inną długość
                     rZapis.Rachunek = rRachunek;
-                    Debug.WriteLine("pomyślne ustawienie rachunku");
+                    //Debug.WriteLine("pomyślne ustawienie rachunku");
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Błąd podczas ustawiania rachunku" + Environment.NewLine + e.Message);
+                    Program.log.Debug("Błąd podczas ustawiania rachunku: " + Environment.NewLine + e.Message);
                 } // Ustawienie rachunku
 
                 try
                 {
-                    //Numer raportu... jak to rozegrać...? 1/2020 to jest numer otwartego raportu w kolejnośći tworzenia.. to chyba powinna być zmienna
-                    //DateTime data = rejestr.Data.AddDays(-1);
-
                     if (czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr) == false)
                     {
                         NowyRaport(rejestr);
+                        ZapisKB(NumerNr, zapis, rejestr);
                         Debug.WriteLine("NowyRaport() ZapisKB()......................................................................");
                     };
 
-
                     //int NumerNr = ZwrocNumerNr(rejestr); //moge to wrzucic jako parametr do funkcji... int wywolasc gdzies przed wywolanie tej funkcji
                     //Debug.WriteLine("NumerNr() ZapisKB()......................................................NIEPOTRZEBNE ZAPYTANIA DO BAZY...");
-
-
                     var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/" + NumerNr + "/" + rejestr.Data.Year + "/" + rejestr.Nazwa + "'");
                     //Debug.WriteLine("pomyślne dodanie Numeru");
                     rZapis.RaportKB = rRaport;
 
-                    rZapis.DataDok = rejestr.Data; //z ta data byl problem !!!!!
+                    rZapis.DataDok = rejestr.Data; 
                     rZapis.Kwota = zapis.Wartosc;
                     //rZapis.NumerObcy = zapis.Konto;
                     rZapis.Opis = zapis.Opis;
 
                     // Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
-                    // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
                 }
                 catch (Exception e)
                 {
@@ -406,11 +425,8 @@ namespace Import
                 } //RaportKB, Data, Kwota, NUMER OBCY !!! 
 
                 rZapis.DefinicjaDokumentu = rNumerator.DefinicjaDokumentu;
-                rZapis.Kierunek = zapis.Symbol; //nie wiem czemu 2
-                                                //rZapis.Seria = "KASA";
-
-                //OP_KASBOLib.ZapisKB zapis = oSession.CreateObject(OP_KASBOLib.ZapisKB)
-
+                rZapis.Kierunek = zapis.Symbol; 
+                
                 try
                 {
                     var rKontrahent = oSession.CreateObject("CDN.Kontrahenci").Item("Knt_KOD = '" + "!NIEOKREŚLONY!" + "'");
@@ -419,7 +435,7 @@ namespace Import
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Kontrahent NIE POMYŚLNIE... " + e.Message);
+                    Debug.WriteLine("Kontrahent nie dodany pomyślnie: " + e.Message);
                 } //Kontrahent
 
                 oSession.Save();
@@ -443,7 +459,7 @@ namespace Import
                 {
                     if (connection == null)
                     {
-                        Debug.WriteLine("Connection Error");
+                        Program.log.Debug("Connection Error");
                         Console.ReadLine();
                         return 0;
                     }
@@ -452,7 +468,7 @@ namespace Import
                     DbCommand command = factory.CreateCommand();
                     if (command == null)
                     {
-                        Debug.WriteLine("Command Error");
+                        Program.log.Debug("Connection Error");
                         Console.ReadLine();
                         return 0;
                     }
@@ -525,210 +541,263 @@ namespace Import
             }
         } //funkcja zwtara id rejestru, potrzebne do utworzenia nowego raportu
 
-        public static void ZapisKB( Zapis zapis, Rejestr rejestr)
+        public static string ZamianaPolskiegoZnaku(string s)
         {
-            try
+            string getStr = s;
+            string returnStr="";
+            for(int i=0; i<getStr.Length; i++)
             {
-                CDNBase.AdoSession oSession = OptimaCOM.oLogin.CreateSession();
+                if(getStr[i]== '�'||getStr[i]=='?')
+                {
+                    //returnStr.Remove(i, 1);
+                   // returnStr.Insert(i, "Ł");
+                    returnStr = returnStr + "Ł";
+                }
+                else
+                {
+                   // returnStr.Insert(i, getStr[i].ToString());
+                    returnStr = returnStr + getStr[i];
+                }
+            }
+            //Console.WriteLine(returnStr); //wypisanie zmienionego opisu
+
+            return returnStr;
+        }
+
+        //#region nieużywane metody
+        //public static void ZapisKB( Zapis zapis, Rejestr rejestr)
+        //{
+        //    try
+        //    {
+        //        CDNBase.AdoSession oSession = OptimaCOM.oLogin.CreateSession();
                 
-                var rZapis = oSession.CreateObject("CDN.ZapisyKB").AddNew();
-                var rNumerator = rZapis.Numerator; //
+        //        var rZapis = oSession.CreateObject("CDN.ZapisyKB").AddNew();
+        //        var rNumerator = rZapis.Numerator; //
 
-                try
-                {
-                    var rDokDef = oSession.CreateObject("CDN.DefinicjeDokumentow").Item("DDf_DDfID = 5");//.Item("DDf_Symbol=''"); //seria
-                    rNumerator.DefinicjaDokumentu = rDokDef;
+        //        try
+        //        {
+        //            var rDokDef = oSession.CreateObject("CDN.DefinicjeDokumentow").Item("DDf_DDfID = 5");//.Item("DDf_Symbol=''"); //seria
+        //            rNumerator.DefinicjaDokumentu = rDokDef;
 
-                    Debug.WriteLine("Definicja dokumentu UDANA!");
-                }
-                catch(Exception e)
-                {
-                    Debug.WriteLine("Błąd podczas tworzenia definicji dokumentu: "+e.Message);
-                } //DefinicjeDokumentów
+        //            //Debug.WriteLine("Definicja dokumentu UDANA!");
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            Program.log.Debug("Błąd podczas tworzenia definicji dokumentu: "+e.Message);
+        //        } //DefinicjeDokumentów
 
-                try
-                {
-                var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Akronim = '" + rejestr.Nazwa+ "'"); //Rejestr
-                rZapis.Rachunek = rRachunek;
-                    Debug.WriteLine("pomyślne ustawienie rachunku");
-                }
-                catch(Exception e)
-                {
-                    Debug.WriteLine("Błąd podczas ustawiania rachunku" + Environment.NewLine+e.Message);
-                } // Ustawienie rachunku
+        //        try
+        //        {
+        //        var rRachunek = oSession.CreateObject("CDN.Rachunki").Item("Bra_Symbol= '" + rejestr.Nazwa+ "'"); //Rejestr
+        //        rZapis.Rachunek = rRachunek;
+        //            //Debug.WriteLine("pomyślne ustawienie rachunku");
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            Program.log.Debug("Błąd podczas ustawiania rachunku" + Environment.NewLine+e.Message);
+        //        } // Ustawienie rachunku
                
-                try 
-                {
-                    //Numer raportu... jak to rozegrać...? 1/2020 to jest numer otwartego raportu w kolejnośći tworzenia.. to chyba powinna być zmienna
-                    //DateTime data = rejestr.Data.AddDays(-1);
-
-                    if (czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr) == false)
-                        {
-                            NowyRaport(rejestr);
-                        Debug.WriteLine("NowyRaport() ZapisKB()......................................................................");
-                        };
+        //        try 
+        //        {
+        //            if (czyIstniejeRaport(rejestr.Data, rejestr.Numer, rejestr) == false)
+        //                {
+        //                    NowyRaport(rejestr);
+        //                Debug.WriteLine("NowyRaport() ZapisKB()......................................................................");
+        //                };
 
 
-                        int NumerNr = ZwrocNumerNr(rejestr); //moge to wrzucic jako parametr do funkcji... int wywolasc gdzies przed wywolanie tej funkcji
-                        Debug.WriteLine("NumerNr() ZapisKB()......................................................NIEPOTRZEBNE ZAPYTANIA DO BAZY...");
+        //                int NumerNr = ZwrocNumerNr(rejestr); //moge to wrzucic jako parametr do funkcji... int wywolasc gdzies przed wywolanie tej funkcji
+        //                Debug.WriteLine("NumerNr() ZapisKB()......................................................NIEPOTRZEBNE ZAPYTANIA DO BAZY...");
                     
 
-                    var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/"+NumerNr+"/"+rejestr.Data.Year+"/"+rejestr.Nazwa + "'");
-                    //Debug.WriteLine("pomyślne dodanie Numeru");
-                    rZapis.RaportKB = rRaport;
+        //            var rRaport = oSession.CreateObject("CDN.RaportyKB").Item("BRp_NumerPelny = '" + "RKB/"+NumerNr+"/"+rejestr.Data.Year+"/"+rejestr.Nazwa + "'");
+        //            //Debug.WriteLine("pomyślne dodanie Numeru");
+        //            rZapis.RaportKB = rRaport;
                       
-                    rZapis.DataDok = rejestr.Data; //z ta data byl problem !!!!!
-                    rZapis.Kwota = zapis.Wartosc;
-                    //rZapis.NumerObcy = zapis.Konto;
-                    rZapis.Opis = zapis.Opis;
+        //            rZapis.DataDok = rejestr.Data; //z ta data byl problem !!!!!
+        //            rZapis.Kwota = zapis.Wartosc;
+        //            //rZapis.NumerObcy = zapis.Konto;
+        //            rZapis.Opis = zapis.Opis;
    
-                   // Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
-                   // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
-                }
-                catch(Exception e)
-                {
-                    Debug.WriteLine("Błąd podczas ustawiania raportu: "+e.Message);
-                } //RaportKB, Data, Kwota, NUMER OBCY !!! 
+        //           // Debug.WriteLine("pomyślne dodanie danych bloku: RaportKB, DataDok, Kwota");
+        //           // var rSeria = oSession.CreateObject("OP_KASBOLib.ZapisKB").Item("Seria1 = KASA");
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            Debug.WriteLine("Błąd podczas ustawiania raportu: "+e.Message);
+        //        } //RaportKB, Data, Kwota, NUMER OBCY !!! 
 
-                rZapis.DefinicjaDokumentu = rNumerator.DefinicjaDokumentu;
-                rZapis.Kierunek = zapis.Symbol; //nie wiem czemu 2
-                                     //rZapis.Seria = "KASA";
+        //        rZapis.DefinicjaDokumentu = rNumerator.DefinicjaDokumentu;
+        //        rZapis.Kierunek = zapis.Symbol; //nie wiem czemu 2
+        //                             //rZapis.Seria = "KASA";
                 
-                //OP_KASBOLib.ZapisKB zapis = oSession.CreateObject(OP_KASBOLib.ZapisKB)
+        //        //OP_KASBOLib.ZapisKB zapis = oSession.CreateObject(OP_KASBOLib.ZapisKB)
                 
-                try
-                {
-                    var rKontrahent = oSession.CreateObject("CDN.Kontrahenci").Item("Knt_KOD = '" +"!NIEOKREŚLONY!"+"'");
-                    rZapis.Podmiot = rKontrahent;
-                    //Debug.WriteLine("Kontrahent: POMYŚLNIE");
-                }
-                catch(Exception e)
-                {
-                    Debug.WriteLine("Kontrahent NIE POMYŚLNIE... "+ e.Message);
-                } //Kontrahent
+        //        try
+        //        {
+        //            var rKontrahent = oSession.CreateObject("CDN.Kontrahenci").Item("Knt_KOD = '" +"!NIEOKREŚLONY!"+"'");
+        //            rZapis.Podmiot = rKontrahent;
+        //            //Debug.WriteLine("Kontrahent: POMYŚLNIE");
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            Debug.WriteLine("Kontrahent NIE POMYŚLNIE... "+ e.Message);
+        //        } //Kontrahent
 
-                oSession.Save();
-                //Debug.WriteLine("sesja udana");
-            }
-            catch(Exception e)
-            {
-                Debug.WriteLine("Błąd tworzenia sesji: "+e.Message);
-            }
-        }  //tworzenie zapisu KB
-        public static void ImportZPliku(Rejestr rejestr)
-        {
-            //int numerNr = NumerNr;
+        //        oSession.Save();
+        //        //Debug.WriteLine("sesja udana");
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        Debug.WriteLine("Błąd tworzenia sesji: "+e.Message);
+        //    }
+        //}  //tworzenie zapisu KB
 
-            try
-            {
+        //public static void ImportZPliku(Rejestr rejestr)
+        //{
+        //    //int numerNr = NumerNr;
 
-                //tablica lini z pliku
-                string[] lines = File.ReadAllLines(@"C:\Banki\" + rejestr.Numer + @"\" + rejestr.Data.Year + @"\" + rejestr.DataWpisana + @"\" + rejestr.PelnaNazwa);
-                //string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
-                //ilość zapisów do wykonania
-                int iloscZapisow = 0;
-                int iloscLinii = 0;
-                int dlugoscZapisu;
+        //    try
+        //    {
 
-                foreach (string line in lines)
-                {
-                    if (line.Contains("4:"))
-                    {
-                        iloscZapisow++;
-                    }
-                    iloscLinii++;
-                }
-                //Obliczenie długośći jednego zapisuKB
-                dlugoscZapisu = iloscLinii / iloscZapisow;
-                //tworzymy tablice obiektów
-                Zapis[] zapisy = new Zapis[iloscZapisow];
+        //        //tablica lini z pliku
+        //        string[] lines = File.ReadAllLines(@"C:\Banki\" + rejestr.Numer + @"\" + rejestr.Data.Year + @"\" + rejestr.DataWpisana + @"\" + rejestr.PelnaNazwa);
+        //        //string[] lines = File.ReadAllLines(@"C:\Banki\1572\2020\03.2020\1572_02032020");
+        //        //ilość zapisów do wykonania
+        //        int iloscZapisow = 0;
+        //        int iloscLinii = 0;
+        //        int dlugoscZapisu;
 
-                //Debug.WriteLine("Ilość lini: " + iloscZapisow);
+        //        foreach (string line in lines)
+        //        {
+        //            if (line.Contains("4:"))
+        //            {
+        //                iloscZapisow++;
+        //            }
+        //            iloscLinii++;
+        //        }
+        //        //Obliczenie długośći jednego zapisuKB
+        //        dlugoscZapisu = iloscLinii / iloscZapisow;
+        //        //tworzymy tablice obiektów
+        //        Zapis[] zapisy = new Zapis[iloscZapisow];
 
-                //int ktoryZapis = 0; //    do obiektów
-                int aktualnaLinia = 0;
-                int koniecPetli = dlugoscZapisu;
-                int KtoryZapisOpis = 1;
-                for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
-                {
-                    Zapis zapis = new Zapis();
-                    //Debug.WriteLine("*******" + KtoryZapisOpis + "******");
+        //        //Debug.WriteLine("Ilość lini: " + iloscZapisow);
 
-                    for (int i = aktualnaLinia; i < koniecPetli; i++) //pętla poszczególnych linii
-                    {
-                        //Debug.WriteLine(lines[i]); // sprawdzanie
-                        if (lines[i].Contains(":25:"))
-                        {
-                            //Debug.WriteLine("***"+lines[i].Substring(7,26));
-                            zapis.Konto = lines[i].Substring(7, 26);
-                        }
-                        if (lines[i].Contains(":28:"))
-                        {
-                            //Debug.WriteLine("***"+lines[i].Substring(9));
-                            zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
-                        }
-                        if (lines[i].Contains(":60F:"))
-                        {
-                            //Debug.WriteLine("***" + lines[i].Substring(15));
-                            if (lines[i].Substring(15) == "0,00")
-                            {
-                                //Debug.WriteLine("***" + lines[i + 1].Substring(15));
-                                zapis.Wartosc = decimal.Parse(lines[i + 1].Substring(15));
-                                zapis.Symbol = 1;
-                            }
-                            else
-                            {
-                                zapis.Wartosc = decimal.Parse(lines[i].Substring(15));
-                                zapis.Symbol = -1;
-                            }
-                        }
-                        if (lines[i].Contains("^20"))
-                        {
-                            //Debug.WriteLine("opis: "+lines[i].Substring(3));
-                            zapis.Opis = lines[i].Substring(3);
-                        }
-                        zapisy[j] = zapis;
-                    }
-                    aktualnaLinia = aktualnaLinia + dlugoscZapisu;
-                    koniecPetli = aktualnaLinia + dlugoscZapisu;
-                    KtoryZapisOpis++;
-                }
+        //        //int ktoryZapis = 0; //    do obiektów
+        //        int aktualnaLinia = 0;
+        //        int koniecPetli = dlugoscZapisu;
+        //        int KtoryZapisOpis = 1;
+        //        for (int j = 0; j < iloscZapisow; j++) //Petla zmieniająca zapis
+        //        {
+        //            Zapis zapis = new Zapis();
+        //            //Debug.WriteLine("*******" + KtoryZapisOpis + "******");
+
+        //            for (int i = aktualnaLinia; i < koniecPetli; i++) //pętla poszczególnych linii
+        //            {
+        //                //Debug.WriteLine(lines[i]); // sprawdzanie
+        //                if (lines[i].Contains(":25:"))
+        //                {
+        //                    //Debug.WriteLine("***"+lines[i].Substring(7,26));
+        //                    zapis.Konto = lines[i].Substring(7, 26);
+        //                }
+        //                if (lines[i].Contains(":28:"))
+        //                {
+        //                    //Debug.WriteLine("***"+lines[i].Substring(9));
+        //                    zapis.Data = (DateTime.Parse(lines[i].Substring(9)));
+        //                }
+        //                if (lines[i].Contains(":60F:"))
+        //                {
+        //                    //Debug.WriteLine("***" + lines[i].Substring(15));
+        //                    if (lines[i].Substring(15) == "0,00")
+        //                    {
+        //                        //Debug.WriteLine("***" + lines[i + 1].Substring(15));
+        //                        zapis.Wartosc = decimal.Parse(lines[i + 1].Substring(15));
+        //                        zapis.Symbol = 1;
+        //                    }
+        //                    else
+        //                    {
+        //                        zapis.Wartosc = decimal.Parse(lines[i].Substring(15));
+        //                        zapis.Symbol = -1;
+        //                    }
+        //                }
+        //                if (lines[i].Contains("^20"))
+        //                {
+        //                    //Debug.WriteLine("opis: "+lines[i].Substring(3));
+        //                    zapis.Opis = lines[i].Substring(3);
+        //                }
+        //                zapisy[j] = zapis;
+        //            }
+        //            aktualnaLinia = aktualnaLinia + dlugoscZapisu;
+        //            koniecPetli = aktualnaLinia + dlugoscZapisu;
+        //            KtoryZapisOpis++;
+        //        }
 
 
-                Debug.WriteLine("OBIEKTY");
-                foreach (Zapis zapis in zapisy)
-                {
-                    try
-                    { //Debug.WriteLine(zapis.Konto); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try
-                    { //Debug.WriteLine(zapis.Data); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try
-                    { //Debug.WriteLine(zapis.Wartosc); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try
-                    { //Debug.WriteLine(zapis.Symbol); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
-                    try
-                    { //Debug.WriteLine(zapis.Opis); 
-                    }
-                    catch (Exception e) { Debug.WriteLine(e.Message); }
+        //        Debug.WriteLine("OBIEKTY");
+        //        foreach (Zapis zapis in zapisy)
+        //        {
+        //            try
+        //            { //Debug.WriteLine(zapis.Konto); 
+        //            }
+        //            catch (Exception e) { Debug.WriteLine(e.Message); }
+        //            try
+        //            { //Debug.WriteLine(zapis.Data); 
+        //            }
+        //            catch (Exception e) { Debug.WriteLine(e.Message); }
+        //            try
+        //            { //Debug.WriteLine(zapis.Wartosc); 
+        //            }
+        //            catch (Exception e) { Debug.WriteLine(e.Message); }
+        //            try
+        //            { //Debug.WriteLine(zapis.Symbol); 
+        //            }
+        //            catch (Exception e) { Debug.WriteLine(e.Message); }
+        //            try
+        //            { //Debug.WriteLine(zapis.Opis); 
+        //            }
+        //            catch (Exception e) { Debug.WriteLine(e.Message); }
 
-                    //Zapis do Optimy!!!
-                    //ZapisKB(zapis, rejestr);
-                    ZapisKB( zapis, rejestr);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Plik nie został znalezniony" + e.Message);
-            }
-        } //Parsowanie danych z pliku. 
+        //            //Zapis do Optimy!!!
+        //            //ZapisKB(zapis, rejestr);
+        //            ZapisKB( zapis, rejestr);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine("Plik nie został znalezniony" + e.Message);
+        //    }
+        //} //Parsowanie danych z pliku.
+        
+        //public static string EncodingDoWindows1250(string toEncode)
+        //{
+           
+        //    string inputStr= toEncode;
 
+        //    //byte[] bytes = new byte[encode.Length * sizeof(char)];
+        //    //System.Buffer.BlockCopy(encode.ToCharArray(), 0, bytes, 0, bytes.Length);
+
+        //    //Encoding w1252 = Encoding.GetEncoding(1252);
+        //    //Encoding utf8 = Encoding.GetEncoding(65001);
+        //    //byte[] output = Encoding.Convert(utf8, w1252, bytes);
+        //    //w1252.GetString(output);
+
+        //    //return w1252.ToString();
+
+
+        //    // get the correct encodings 
+        //    var srcEncoding = Encoding.UTF8; // utf-8
+        //    var destEncoding = Encoding.GetEncoding(1252); // windows-1252
+
+        //    // convert the source bytes to the destination bytes
+        //    var destBytes = Encoding.Convert(srcEncoding, destEncoding, srcEncoding.GetBytes(inputStr));
+
+        //    // process the byte[]
+        //    //File.WriteAllBytes("myFile", destBytes); // write it to a file OR ...
+        //    var destString = destEncoding.GetString(destBytes); // ... get the string
+            
+        //    return destString;
+        //}
+
+        //#endregion 
     }
 }
