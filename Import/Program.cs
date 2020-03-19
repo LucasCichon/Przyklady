@@ -14,11 +14,13 @@ namespace Import
 {
     public partial class Form1 : Form
     {
+
         private MonthCalendar Kalendarz;
         private Button BtnImportZapisow;
         private ListBox listBoxLog;
         private ContextMenuStrip contextMenuStrip1;
         private System.ComponentModel.IContainer components;
+        private Button btnClose;
         public static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public Form1()
@@ -32,28 +34,30 @@ namespace Import
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            
 
             //OptimaCOM.O_Login("ADMIN", "", "Firma_Demo");
 
-            //List<Rejestr> ListaRejestrow = ImportClass.SzukaniePlikow();
+            //List<Rejestr> ListaRejestrow = ImportClass.SzukaniePlikow(DateTime.Now.ToString());
 
             ////int NumerNr;
-            //for(int i=0; i<ListaRejestrow.Count; i++)
+            //for (int i = 0; i < ListaRejestrow.Count; i++)
             //{
             //    int NumerNr = ImportClass.ZwrocNumerNr(ListaRejestrow[i]);
+            //    ImportClass.ImportZPlikuKonversja(NumerNr, ListaRejestrow[i]);
 
-            //        if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
-            //            {
-            //                ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
-            //            }
-            //        else
-            //        {
-            //            ImportClass.NowyRaport(ListaRejestrow[i]);
-            //            if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
-            //                {
-            //                    ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
-            //                }
-            //        }
+                //if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
+                //{
+                //    ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
+                //}
+                //else
+                //{
+                //    ImportClass.NowyRaport(ListaRejestrow[i]);
+                //    if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
+                //    {
+                //        ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
+                //    }
+                //}
             //}
             //OptimaCOM.O_Logout();
         }
@@ -65,11 +69,13 @@ namespace Import
             this.BtnImportZapisow = new System.Windows.Forms.Button();
             this.listBoxLog = new System.Windows.Forms.ListBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnClose = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Kalendarz
             // 
             this.Kalendarz.BackColor = System.Drawing.SystemColors.Window;
+            this.Kalendarz.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.Kalendarz.Location = new System.Drawing.Point(18, 18);
             this.Kalendarz.MaxSelectionCount = 1;
             this.Kalendarz.Name = "Kalendarz";
@@ -78,9 +84,10 @@ namespace Import
             // BtnImportZapisow
             // 
             this.BtnImportZapisow.BackColor = System.Drawing.SystemColors.Window;
-            this.BtnImportZapisow.Location = new System.Drawing.Point(90, 204);
+            this.BtnImportZapisow.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.BtnImportZapisow.Location = new System.Drawing.Point(18, 192);
             this.BtnImportZapisow.Name = "BtnImportZapisow";
-            this.BtnImportZapisow.Size = new System.Drawing.Size(105, 36);
+            this.BtnImportZapisow.Size = new System.Drawing.Size(124, 38);
             this.BtnImportZapisow.TabIndex = 1;
             this.BtnImportZapisow.Text = "Import";
             this.BtnImportZapisow.UseVisualStyleBackColor = false;
@@ -92,7 +99,7 @@ namespace Import
             this.listBoxLog.HorizontalScrollbar = true;
             this.listBoxLog.Location = new System.Drawing.Point(299, 18);
             this.listBoxLog.Name = "listBoxLog";
-            this.listBoxLog.Size = new System.Drawing.Size(447, 238);
+            this.listBoxLog.Size = new System.Drawing.Size(406, 212);
             this.listBoxLog.TabIndex = 2;
             // 
             // contextMenuStrip1
@@ -100,15 +107,29 @@ namespace Import
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
+            // btnClose
+            // 
+            this.btnClose.BackColor = System.Drawing.SystemColors.Window;
+            this.btnClose.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnClose.Location = new System.Drawing.Point(161, 192);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(126, 38);
+            this.btnClose.TabIndex = 3;
+            this.btnClose.Text = "Wyjdź";
+            this.btnClose.UseVisualStyleBackColor = false;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
             // Form1
             // 
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(764, 277);
+            this.ClientSize = new System.Drawing.Size(726, 250);
+            this.Controls.Add(this.btnClose);
             this.Controls.Add(this.listBoxLog);
             this.Controls.Add(this.BtnImportZapisow);
             this.Controls.Add(this.Kalendarz);
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.Name = "Form1";
             this.Text = "Importowanie Zapisów KB";
             this.ResumeLayout(false);
@@ -130,40 +151,23 @@ namespace Import
 
                 if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
                 {
-                    ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
+                    ImportClass.ImportZPlikuKonversja(NumerNr, ListaRejestrow[i]);
                 }
                 else
                 {
                     ImportClass.NowyRaport(ListaRejestrow[i]);
                     if (ImportClass.czyIstniejeRaport(ListaRejestrow[i].Data, ListaRejestrow[i].Numer, ListaRejestrow[i]) == true)
                     {
-                        ImportClass.ImportZPliku(NumerNr, ListaRejestrow[i]);
+                        ImportClass.ImportZPlikuKonversja(NumerNr, ListaRejestrow[i]);
                     }
                 }
             }
             OptimaCOM.O_Logout();
         }
 
-        public void logURI(/*string OutputLog, string Information, string JOB,*/ string s)
+        private void btnClose_Click(object sender, EventArgs e)
         {
-            try
-            {
-                listBoxLog.Items.Add(s);
-                //listBox1.BeginUpdate();
-                //listBox1.Items.Add("0");
-                //listBox1.Items[0] = DateTime.Now.ToString() + " : " + JOB + " " + Information;
-                //listBox1.Items.Add("1");
-                //listBox1.EndUpdate();
-                //textBox1.Text = JOB;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            this.Close();
         }
-
-       
-
-        
     }
 }
