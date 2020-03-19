@@ -54,6 +54,7 @@
     <Compile Include="ImportClass.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ListBocTraceListener.cs" />
     <Compile Include="OptimaCOM.cs" />
     <Compile Include="Program.cs">
       <SubType>Form</SubType>

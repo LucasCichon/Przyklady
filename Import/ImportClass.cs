@@ -9,6 +9,8 @@ using CDNBase;
 
 using System.Data.Common;
 using System.Configuration;
+using System.Windows.Forms;
+
 
 
 
@@ -17,7 +19,12 @@ namespace Import
      class ImportClass : Form1
     {
         //Program.logUri("takie tam");
-        
+        //public Form1 myForm = new Form1();
+        public Form1 form;
+        public ImportClass(Form1 form) {
+            this.form = form;
+        }
+
         public static List<Rejestr> SzukaniePlikow(string Data) 
         {
             string[] directories = Directory.GetDirectories(@"C:\Banki", ".", SearchOption.AllDirectories);

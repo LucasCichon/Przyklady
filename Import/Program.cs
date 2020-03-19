@@ -17,13 +17,14 @@ namespace Import
         private MonthCalendar Kalendarz;
         private Button BtnImportZapisow;
         private ListBox listBoxLog;
-        private Label label1;
-
+        private ContextMenuStrip contextMenuStrip1;
+        private System.ComponentModel.IContainer components;
         public static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public Form1()
         {
             InitializeComponent();
+            Trace.Listeners.Add(new ListBoxTraceListener(listBoxLog));
         }
 
         static void Main(string[] args)
@@ -59,14 +60,16 @@ namespace Import
 
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.Kalendarz = new System.Windows.Forms.MonthCalendar();
             this.BtnImportZapisow = new System.Windows.Forms.Button();
             this.listBoxLog = new System.Windows.Forms.ListBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
             // 
             // Kalendarz
             // 
+            this.Kalendarz.BackColor = System.Drawing.SystemColors.Window;
             this.Kalendarz.Location = new System.Drawing.Point(18, 18);
             this.Kalendarz.MaxSelectionCount = 1;
             this.Kalendarz.Name = "Kalendarz";
@@ -74,36 +77,34 @@ namespace Import
             // 
             // BtnImportZapisow
             // 
-            this.BtnImportZapisow.Location = new System.Drawing.Point(90, 229);
+            this.BtnImportZapisow.BackColor = System.Drawing.SystemColors.Window;
+            this.BtnImportZapisow.Location = new System.Drawing.Point(90, 204);
             this.BtnImportZapisow.Name = "BtnImportZapisow";
             this.BtnImportZapisow.Size = new System.Drawing.Size(105, 36);
             this.BtnImportZapisow.TabIndex = 1;
             this.BtnImportZapisow.Text = "Import";
-            this.BtnImportZapisow.UseVisualStyleBackColor = true;
+            this.BtnImportZapisow.UseVisualStyleBackColor = false;
             this.BtnImportZapisow.Click += new System.EventHandler(this.BtnImportZapisow_Click);
             // 
             // listBoxLog
             // 
             this.listBoxLog.FormattingEnabled = true;
+            this.listBoxLog.HorizontalScrollbar = true;
             this.listBoxLog.Location = new System.Drawing.Point(299, 18);
             this.listBoxLog.Name = "listBoxLog";
-            this.listBoxLog.Size = new System.Drawing.Size(472, 277);
+            this.listBoxLog.Size = new System.Drawing.Size(447, 238);
             this.listBoxLog.TabIndex = 2;
             // 
-            // label1
+            // contextMenuStrip1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 202);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "label1";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // Form1
             // 
-            this.ClientSize = new System.Drawing.Size(794, 313);
-            this.Controls.Add(this.label1);
+            this.AutoScroll = true;
+            this.BackColor = System.Drawing.SystemColors.Window;
+            this.ClientSize = new System.Drawing.Size(764, 277);
             this.Controls.Add(this.listBoxLog);
             this.Controls.Add(this.BtnImportZapisow);
             this.Controls.Add(this.Kalendarz);
@@ -111,7 +112,6 @@ namespace Import
             this.Name = "Form1";
             this.Text = "Importowanie Zapisów KB";
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -162,10 +162,8 @@ namespace Import
             }
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-            label1.Text = Kalendarz.SelectionRange.Start.ToShortDateString();
-            //label1.Text = Kalendarz.SelectionRange.ToString();
-        }
+       
+
+        
     }
 }
